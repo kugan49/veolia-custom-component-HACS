@@ -1,0 +1,31 @@
+{
+    "editor.formatOnPaste": false,
+    "editor.formatOnSave": true,
+    "python.formatting.provider": "black",
+    "python.formatting.blackArgs": [
+        "--line-length",
+        "120"
+    ],
+    "python.linting.lintOnSave": true,
+    "python.linting.enabled": true,
+    "python.linting.pylintEnabled": false,
+    "python.linting.pylintPath": ".venv\\Scripts\\pylint",
+    "python.linting.pylintArgs": [
+        "--load-plugins",
+        "--enable=W0614",
+        "--enable= W0611"
+    ],
+    "[python]": {
+        "editor.tabSize": 4,
+        "editor.codeActionsOnSave": {
+            "source.organizeImports": true
+        }
+    },
+    "files.exclude": {
+        ".venv": true,
+        "**/__pycache__": true,
+    },
+    "python.linting.flake8Enabled": true,
+    "python.analysis.typeCheckingMode": "off",
+    "todo-tree.tree.scanMode": "workspace"
+}
