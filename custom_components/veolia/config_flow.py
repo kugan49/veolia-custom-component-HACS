@@ -1,9 +1,10 @@
 """Adds config flow for Veolia."""
 import voluptuous as vol
 from homeassistant import config_entries
-from VeoliaClient import BadCredentialsException, VeoliaClient
 
 from .const import CONF_PASSWORD, CONF_USERNAME, DOMAIN
+from .debug import decoratorexceptionDebug
+from .VeoliaClient import BadCredentialsException, VeoliaClient
 
 
 class VeoliaFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
@@ -12,10 +13,12 @@ class VeoliaFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
     VERSION = 1
     CONNECTION_CLASS = config_entries.CONN_CLASS_CLOUD_POLL
 
+    @decoratorexceptionDebug
     def __init__(self):
         """Initialize."""
         self._errors = {}
 
+    @decoratorexceptionDebug
     async def async_step_user(self, user_input=None):
         """Handle a flow initialized by the user."""
         self._errors = {}
@@ -31,6 +34,7 @@ class VeoliaFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
 
         return await self._show_config_form(user_input)
 
+    @decoratorexceptionDebug
     async def _show_config_form(self, user_input):  # pylint: disable=unused-argument
         """Show the configuration form to edit location data."""
         return self.async_show_form(
@@ -39,11 +43,12 @@ class VeoliaFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             errors=self._errors,
         )
 
+    @decoratorexceptionDebug
     async def _test_credentials(self, username, password):
         """Return true if credentials is valid."""
         try:
             client = VeoliaClient(username, password)
-            await client.login()
+            await self.hass.async_add_executor_job(client.login)
             return True
         except BadCredentialsException:  # pylint: disable=broad-except
             pass

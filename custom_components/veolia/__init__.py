@@ -3,8 +3,7 @@ Custom integration to integrate Veolia with Home Assistant.
 """
 import asyncio
 import logging
-import time
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import Config, HomeAssistant
@@ -12,21 +11,23 @@ from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers import aiohttp_client
 from homeassistant.helpers.typing import HomeAssistantType
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
-from VeoliaClient import VeoliaClient
 
-from .const import API, CONF_PASSWORD, CONF_USERNAME, COORDINATOR, DAILY, DOMAIN, LAST_REPORT_TIMESTAMP, PLATFORMS
+from .const import API, CONF_PASSWORD, CONF_USERNAME, COORDINATOR, DOMAIN, PLATFORMS
+from .debug import decoratorexceptionDebug
+from .VeoliaClient import VeoliaClient
 
 SCAN_INTERVAL = timedelta(minutes=30)
-
 
 _LOGGER = logging.getLogger(__name__)
 
 
+@decoratorexceptionDebug
 async def async_setup(hass: HomeAssistant, config: Config):
     """Set up this integration using YAML is not supported."""
     return True
 
 
+@decoratorexceptionDebug
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     """Set up this integration using UI."""
     if hass.data.get(DOMAIN) is None:
@@ -38,28 +39,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     session = aiohttp_client.async_create_clientsession(hass)
     hass.data[DOMAIN][API] = VeoliaClient(username, password, session)
 
+    @decoratorexceptionDebug
     async def _get_consumption():
         """Return the water consumption."""
         api = hass.data[DOMAIN][API]
-        last_report_date = api.last_report_date
-        last_report_timestamp = time.mktime(
-            datetime(last_report_date.year, last_report_date.month, last_report_date.day).timetuple()
-        )
-
-        previous_data = hass.data[DOMAIN][COORDINATOR].data
-        if (
-            previous_data
-            and previous_data[LAST_REPORT_TIMESTAMP] == last_report_timestamp
-            and 0 < previous_data[DAILY][-1] < 10000
-        ):
-            return previous_data
-
-        daily_consumption = await api.update()
-
-        return {
-            DAILY: daily_consumption,
-            LAST_REPORT_TIMESTAMP: last_report_timestamp,
-        }
+        daily_consumption = await hass.async_add_executor_job(api.update)
+        _LOGGER.debug(f"daily_consumption = {daily_consumption}")
+        return daily_consumption
 
     coordinator = DataUpdateCoordinator(
         hass,
@@ -82,6 +68,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     return True
 
 
+@decoratorexceptionDebug
 async def async_unload_entry(hass: HomeAssistantType, entry: ConfigEntry):
     """Unload a config entry."""
     hass.data[DOMAIN].pop(API, None)

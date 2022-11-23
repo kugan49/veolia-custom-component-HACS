@@ -1,3 +1,4 @@
+import logging
 import operator
 import xml.etree.ElementTree as ET
 from copy import deepcopy as copy
@@ -5,6 +6,8 @@ from datetime import datetime
 
 import requests
 import xmltodict
+
+_LOGGER = logging.getLogger(__name__)
 
 
 class VeoliaError(Exception):
@@ -22,7 +25,7 @@ class VeoliaClient:
     Return self
     """
 
-    def __init__(self, email, password, session=None):
+    def __init__(self, email, password, session=requests.Session()):
         """Initialize the client object."""
         self._email = email
         self._pwd = password
@@ -31,10 +34,8 @@ class VeoliaClient:
         self.__tokenPassword = None
         self.success = False
         self.attributes = {}
-        if session is None:
-            self.session = requests.Session()
-        else:
-            self.session = session
+        # self.session = session
+        self.session = requests.Session()
         self.__enveloppe = self.__create_enveloppe()
 
     def login(self):
@@ -42,8 +43,10 @@ class VeoliaClient:
         Check if login is right
         """
         try:
+            _LOGGER.info("Check credentials")
             self._get_tokenPassword()
-        except Exception:
+        except Exception as e:
+            _LOGGER.error(f"wrong authentication : {e}")
             raise BadCredentialsException("wrong authentication")
             pass
 
@@ -82,7 +85,10 @@ class VeoliaClient:
                 lstindex.sort(key=operator.itemgetter("dateReleve"), reverse=True)
                 idx = 0
                 for val in lstindex:
-                    self.attributes["historyConsumption"][idx] = (val["dateReleve"], val["consommation"] * 1000)
+                    self.attributes["historyConsumption"][idx] = (
+                        datetime.strptime(val["dateReleve"], "%Y-%m-%dT%H:%M:%S%z"),
+                        int(val["consommation"]) * 1000,
+                    )
                     idx += 1
                 self.success = True
             except ValueError:
@@ -98,22 +104,27 @@ class VeoliaClient:
             {"cptEmail": self._email, "cptPwd": self._pwd},
             anonymous=True,
         )
-
+        # _LOGGER.debug(f"_get_token_password : {datas.replace(self._pwd,"MySecretPassWord")}")
         resp = self.session.post(
             self.address,
             headers=self.headers,
             data=datas,
         )
+        _LOGGER.debug(f"resp status={resp.status_code}")
         if resp.status_code != 200:
+            _LOGGER.error("problem with authentication")
             raise Exception(f"POST /__get_tokenPassword/ {resp.status_code}")
         else:
             result = xmltodict.parse(f"<soap:Envelope{resp.text.split('soap:Envelope')[1]}soap:Envelope>")
+            # _LOGGER.debug(f"result={result}")
             self.__tokenPassword = result["soap:Envelope"]["soap:Body"]["ns2:getAuthentificationFrontResponse"][
                 "return"
             ]["espaceClient"]["cptPwd"]
             self.__aboId = result["soap:Envelope"]["soap:Body"]["ns2:getAuthentificationFrontResponse"]["return"][
                 "listContrats"
             ]["aboId"]
+            # _LOGGER.debug(f"__tokenPassword={self.__tokenPassword}")
+            # _LOGGER.debug(f"__aboId={self.__aboId}")
 
     def __create_enveloppe(self):
         """

@@ -10,5 +10,4 @@ CONF_PASSWORD = "password"
 API = "api"
 COORDINATOR = "coordinator"
 
-DAILY = "daily"
-LAST_REPORT_TIMESTAMP = "last_report_timestamp"
+FORMAT_DATE = "%Y-%m-%dT%H:%M:%S%z"

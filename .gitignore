@@ -1,1 +1,4 @@
 /.venv
+__pycache__/VeoliaClient.cpython-39.pyc
+__pycache__
+.vscode/launch.json
