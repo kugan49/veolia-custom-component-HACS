@@ -1,6 +1,4 @@
 """VeoliaEntity class."""
-from datetime import datetime
-
 from homeassistant.const import VOLUME_LITERS
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
@@ -35,5 +33,5 @@ class VeoliaEntity(CoordinatorEntity):
     def extra_state_attributes(self):
         """Return the state attributes."""
         historyConsumption = self.coordinator.data["historyConsumption"]
-        last_report = datetime.strptime(historyConsumption[0][0], FORMAT_DATE)
+        last_report = historyConsumption[0][0]
         return {"last_report": last_report, "historyConsumption": historyConsumption}
