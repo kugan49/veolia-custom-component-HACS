@@ -2,7 +2,7 @@
 from homeassistant.const import VOLUME_LITERS
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .const import DAILY, DOMAIN, NAME
+from .const import DOMAIN, NAME
 from .debug import decoratorexceptionDebug
 
 

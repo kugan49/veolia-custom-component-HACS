@@ -2,6 +2,8 @@
 
 import logging
 
+from homeassistant.components.sensor import SensorDeviceClass, SensorStateClass
+
 from .const import COORDINATOR, DAILY, DOMAIN, HISTORY, MONTHLY
 from .debug import decoratorexceptionDebug
 from .entity import VeoliaEntity
@@ -24,12 +26,15 @@ class VeoliaLastIndexSensor(VeoliaEntity):
     """Monitors the last index."""
 
     _attr_name = "veolia_last_index"
+    _attr_device_class = SensorDeviceClass.WATER
+    _LOGGER.debug(f"state_class = {SensorStateClass.TOTAL_INCREASING}")
+    _attr_state_class = SensorStateClass.TOTAL_INCREASING
 
     @property
     @decoratorexceptionDebug
     def state(self):
         """Return the state of the sensor."""
-        _LOGGER.debug(f"self.coordinator.data = {self.coordinator.data[DAILY]}")
+        _LOGGER.debug(f"self.coordinator.data = {self.coordinator.data['last_index']}")
         state = self.coordinator.data["last_index"]
 
         if state > 0:
