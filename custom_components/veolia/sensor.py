@@ -15,8 +15,35 @@ async def async_setup_entry(hass, entry, async_add_devices):
     sensors = [
         VeoliaDailyUsageSensor(coordinator, entry),
         VeoliaMonthlyUsageSensor(coordinator, entry),
+        VeoliaLastIndexSensor(coordinator, entry),
     ]
     async_add_devices(sensors)
+
+
+class VeoliaLastIndexSensor(VeoliaEntity):
+    """Monitors the last index."""
+
+    _attr_name = "veolia_last_index"
+
+    @property
+    @decoratorexceptionDebug
+    def state(self):
+        """Return the state of the sensor."""
+        _LOGGER.debug(f"self.coordinator.data = {self.coordinator.data[DAILY]}")
+        state = self.coordinator.data["last_index"]
+
+        if state > 0:
+            return state
+
+        return None
+
+    @property
+    @decoratorexceptionDebug
+    def extra_state_attributes(self):
+        """Return the state attributes."""
+        _LOGGER.debug(f"Daily : self.coordinator.data = {self.coordinator.data[DAILY]}")
+        attrs = {"last_report": self.coordinator.data[DAILY][HISTORY][0][0]}
+        return attrs
 
 
 class VeoliaDailyUsageSensor(VeoliaEntity):
@@ -29,7 +56,7 @@ class VeoliaDailyUsageSensor(VeoliaEntity):
     def state(self):
         """Return the state of the sensor."""
         _LOGGER.debug(f"self.coordinator.data = {self.coordinator.data[DAILY]}")
-        state = self.coordinator.data[DAILY]["historyConsumption"][0][1]
+        state = self.coordinator.data[DAILY][HISTORY][0][1]
 
         if state > 0:
             return state
@@ -42,8 +69,8 @@ class VeoliaDailyUsageSensor(VeoliaEntity):
         """Return the state attributes."""
         _LOGGER.debug(f"Daily : self.coordinator.data = {self.coordinator.data[DAILY]}")
         attrs = {
-            "last_report": self.coordinator.data[DAILY]["historyConsumption"][0][0],
-            "historyConsumption": self.coordinator.data[DAILY]["historyConsumption"],
+            "last_report": self.coordinator.data[DAILY][HISTORY][0][0],
+            "historyConsumption": self.coordinator.data[DAILY][HISTORY],
         }
         return attrs
 
@@ -57,7 +84,7 @@ class VeoliaMonthlyUsageSensor(VeoliaEntity):
     def state(self):
         """Return the state of the sensor."""
         _LOGGER.debug(f"self.coordinator.data = {self.coordinator.data[MONTHLY]}")
-        state = self.coordinator.data[MONTHLY]["historyConsumption"][0][1]
+        state = self.coordinator.data[MONTHLY][HISTORY][0][1]
 
         if state > 0:
             return state
@@ -70,7 +97,7 @@ class VeoliaMonthlyUsageSensor(VeoliaEntity):
         """Return the state attributes."""
         _LOGGER.debug(f"Monthly : self.coordinator.data = {self.coordinator.data[MONTHLY]}")
         attrs = {
-            "last_report": self.coordinator.data[DAILY]["historyConsumption"][0][0],
-            "historyConsumption": self.coordinator.data[MONTHLY]["historyConsumption"],
+            "last_report": self.coordinator.data[DAILY][HISTORY][0][0],
+            "historyConsumption": self.coordinator.data[MONTHLY][HISTORY],
         }
         return attrs

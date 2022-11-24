@@ -132,6 +132,7 @@ class VeoliaClient:
                             int(val["consommation"]),
                         )
                         idx += 1
+                    self.attributes["last_index"] = int(lstindex(0)["index"]) + int(lstindex(0)["consommation"])
                 self.success = True
             except ValueError:
                 raise VeoliaError("Issue with accessing data")
