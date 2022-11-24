@@ -1,10 +1,7 @@
 {
     "name": "Veolia",
     "hacs": "1.20.0",
-    "domains": [
-        "sensor"
-    ],
-    "iot_class": "Cloud Polling",
+    "render_readme": true,
     "homeassistant": "2022.8.0",
     "country": "FR"
 }
