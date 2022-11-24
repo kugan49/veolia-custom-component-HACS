@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## v0.0.4
+### Changed
+ - Correction bug sur last_index
 ## v0.0.3
 ### Changed
  - Added sensor last_index compatible with energy dashboard
