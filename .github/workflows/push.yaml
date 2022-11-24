@@ -19,35 +19,15 @@ jobs:
           category: "integration"
           comment: false
   release:
-    if: ${{ startsWith(github.ref, 'refs/tags/v') }}
     needs: validate
     runs-on: "ubuntu-latest"
     steps:
       - uses: actions/checkout@v2
-      - name: Zip custom components dir
-        working-directory: "custom_components"
-        run: zip -r veolia.zip veolia/*
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1  # Official Github action
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+      - uses: CupOfTea696/gh-action-auto-release@v1.0.0
         with:
-          tag_name: ${{ github.ref }}
-          release_name: ${{ github.ref }}
-          body: |
-            Changes in this Release
-            - First Change
-            - Second Change
-          draft: true
-          prerelease: false
-      - name: Upload Release Asset
-        id: upload-release-asset 
-        uses: actions/upload-release-asset@v1
+          title: "Release: $version"
+          tag: "v$semver"
+          draft: false
+          regex: "/^Release: #{semver}$/i"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
-          asset_path: ./custom_components/veolia.zip
-          asset_name: veolia.zip
-          asset_content_type: application/zip

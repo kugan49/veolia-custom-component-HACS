@@ -40,9 +40,13 @@ Recommended as you get notifications of updates
 
 ## Configuration is done in the UI
 
+Just fill in your username and password when adding the integration
+
+## Special Thanks
+
+A big thanks to [@Pulpyyyy](https://github.com/Pulpyyyy), who helped me a lot in the research
+
 <!---->
-
-
 ***
 
 [commits-shield]: https://img.shields.io/github/commit-activity/y/kugan49/veolia-custom-component-HACS.svg?style=for-the-badge
