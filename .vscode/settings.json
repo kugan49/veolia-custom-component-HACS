@@ -27,5 +27,8 @@
     },
     "python.linting.flake8Enabled": true,
     "python.analysis.typeCheckingMode": "off",
-    "todo-tree.tree.scanMode": "workspace"
+    "todo-tree.tree.scanMode": "workspace",
+    "files.associations": {
+        "*.yaml": "home-assistant"
+    }
 }
