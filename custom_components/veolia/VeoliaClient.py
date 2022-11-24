@@ -7,6 +7,8 @@ from datetime import datetime
 import requests
 import xmltodict
 
+from .const import DAILY, FORMAT_DATE, HISTORY, MONTHLY
+
 _LOGGER = logging.getLogger(__name__)
 
 
@@ -33,7 +35,7 @@ class VeoliaClient:
         self.headers = {"Content-Type": "application/xml; charset=UTF-8"}
         self.__tokenPassword = None
         self.success = False
-        self.attributes = {}
+        self.attributes = {DAILY: {}, MONTHLY: {}}
         # self.session = session
         self.session = requests.Session()
         self.__enveloppe = self.__create_enveloppe()
@@ -41,6 +43,7 @@ class VeoliaClient:
     def login(self):
         """
         Check if login is right
+        raise BadCredentialsException if not
         """
         try:
             _LOGGER.info("Check credentials")
@@ -50,23 +53,50 @@ class VeoliaClient:
             raise BadCredentialsException("wrong authentication")
             pass
 
-    def update(self):
-        """Return the latest collected datas."""
+    def update_all(self):
+        """
+        Return the latest collected datas.
+
+        Returns:
+            dict: dict of consumptions by date and by period
+        """
+        self.update()
+        self.update(True)
+        return self.attributes
+
+    def update(self, month=False):
+        """
+        Return the latest collected datas by arg.
+
+        Args:
+            month (bool, optional): if True returns consumption by Month else by Day. Defaults to False.
+
+        Returns:
+            dict: dict of consumptions by date
+        """
         if self.__tokenPassword is None:
             self._get_tokenPassword()
-        self._fetch_data()
+        self._fetch_data(month)
         if not self.success:
             return
-        return self.attributes
+        period = MONTHLY if month is True else DAILY
+        return self.attributes[period]
 
     def close_session(self):
         """Close current session."""
         self.session.close()
         self.session = None
 
-    def _fetch_data(self):
-        """Fetch latest data from Suez."""
-        datas = self.__construct_body("getConsommationJournaliere", {"aboNum": self.__aboId}, anonymous=False)
+    def _fetch_data(self, month=False):
+        """Fetch latest data from Veolia."""
+        _LOGGER.debug(f"_fetch_data by month ? {month}")
+        period = MONTHLY if month is True else DAILY
+        if month is True:
+            action = "getConsommationMensuelle"
+        else:
+            action = "getConsommationJournaliere"
+        _LOGGER.debug(f"action={action}")
+        datas = self.__construct_body(action, {"aboNum": self.__aboId}, anonymous=False)
 
         resp = self.session.post(
             self.address,
@@ -78,18 +108,30 @@ class VeoliaClient:
         else:
             try:
                 result = xmltodict.parse(f"<soap:Envelope{resp.text.split('soap:Envelope')[1]}soap:Envelope>")
-                lstindex = result["soap:Envelope"]["soap:Body"]["ns2:getConsommationJournaliereResponse"]["return"]
-                self.attributes["attribution"] = "Data provided by https://www.service.eau.veolia.fr/"
-                self.attributes["historyConsumption"] = {}
+                _LOGGER.debug(f"result={result}")
+                lstindex = result["soap:Envelope"]["soap:Body"][f"ns2:{action}Response"]["return"]
+                self.attributes[period]["attribution"] = "Data provided by https://www.service.eau.veolia.fr/"
+                self.attributes[period][HISTORY] = {}
+
                 # sort date desc and append in list of tuple (date,liters)
-                lstindex.sort(key=operator.itemgetter("dateReleve"), reverse=True)
-                idx = 0
-                for val in lstindex:
-                    self.attributes["historyConsumption"][idx] = (
-                        datetime.strptime(val["dateReleve"], "%Y-%m-%dT%H:%M:%S%z"),
-                        int(val["consommation"]) * 1000,
-                    )
-                    idx += 1
+                if month is True:
+                    lstindex.sort(key=operator.itemgetter("annee", "mois"), reverse=True)
+                    idx = 0
+                    for val in lstindex:
+                        self.attributes[period][HISTORY][idx] = (
+                            f"{val['annee']}-{val['mois']}",
+                            int(val["consommation"]),
+                        )
+                        idx += 1
+                else:
+                    lstindex.sort(key=operator.itemgetter("dateReleve"), reverse=True)
+                    idx = 0
+                    for val in lstindex:
+                        self.attributes[period][HISTORY][idx] = (
+                            datetime.strptime(val["dateReleve"], FORMAT_DATE).date(),
+                            int(val["consommation"]),
+                        )
+                        idx += 1
                 self.success = True
             except ValueError:
                 raise VeoliaError("Issue with accessing data")

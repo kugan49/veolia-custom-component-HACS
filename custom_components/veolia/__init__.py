@@ -43,9 +43,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     async def _get_consumption():
         """Return the water consumption."""
         api = hass.data[DOMAIN][API]
-        daily_consumption = await hass.async_add_executor_job(api.update)
-        _LOGGER.debug(f"daily_consumption = {daily_consumption}")
-        return daily_consumption
+        consumption = await hass.async_add_executor_job(api.update_all)
+        _LOGGER.debug(f"consumption = {consumption}")
+        return consumption
 
     coordinator = DataUpdateCoordinator(
         hass,

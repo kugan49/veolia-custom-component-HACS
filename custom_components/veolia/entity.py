@@ -2,7 +2,7 @@
 from homeassistant.const import VOLUME_LITERS
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .const import DOMAIN, FORMAT_DATE, NAME
+from .const import DAILY, DOMAIN, NAME
 from .debug import decoratorexceptionDebug
 
 
@@ -27,11 +27,3 @@ class VeoliaEntity(CoordinatorEntity):
             "manufacturer": NAME,
             "name": NAME,
         }
-
-    @property
-    @decoratorexceptionDebug
-    def extra_state_attributes(self):
-        """Return the state attributes."""
-        historyConsumption = self.coordinator.data["historyConsumption"]
-        last_report = historyConsumption[0][0]
-        return {"last_report": last_report, "historyConsumption": historyConsumption}
