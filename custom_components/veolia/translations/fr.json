@@ -3,7 +3,6 @@
     "config": {
         "step": {
             "user": {
-                "title": "Veolia",
                 "description": "Utiliser vos identifiants pour https://www.service.eau.veolia.fr/",
                 "data": {
                     "username": "Identifiant",
