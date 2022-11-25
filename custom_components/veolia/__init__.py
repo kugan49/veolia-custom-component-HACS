@@ -2,21 +2,20 @@
 Custom integration to integrate Veolia with Home Assistant.
 """
 import asyncio
-import logging
 from datetime import timedelta
+import logging
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import Config, HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady
-from homeassistant.helpers import aiohttp_client
-from homeassistant.helpers.typing import HomeAssistantType
-from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
+from homeassistant.helpers.aiohttp_client import async_get_clientsession
+from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
-from .const import API, CONF_PASSWORD, CONF_USERNAME, COORDINATOR, DOMAIN, PLATFORMS
-from .debug import decoratorexceptionDebug
 from .VeoliaClient import VeoliaClient
+from .const import CONF_PASSWORD, CONF_USERNAME, DOMAIN, PLATFORMS
+from .debug import decoratorexceptionDebug
 
-SCAN_INTERVAL = timedelta(minutes=30)
+SCAN_INTERVAL = timedelta(hours=10)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -36,41 +35,95 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     username = entry.data.get(CONF_USERNAME)
     password = entry.data.get(CONF_PASSWORD)
 
-    session = aiohttp_client.async_create_clientsession(hass)
-    hass.data[DOMAIN][API] = VeoliaClient(username, password, session)
-
-    @decoratorexceptionDebug
-    async def _get_consumption():
-        """Return the water consumption."""
-        api = hass.data[DOMAIN][API]
-        consumption = await hass.async_add_executor_job(api.update_all)
-        _LOGGER.debug(f"consumption = {consumption}")
-        return consumption
-
-    coordinator = DataUpdateCoordinator(
-        hass,
-        _LOGGER,
-        name="veolia consumption update",
-        update_method=_get_consumption,
-        update_interval=SCAN_INTERVAL,
-    )
-
-    hass.data[DOMAIN][COORDINATOR] = coordinator
-
+    session = async_get_clientsession(hass)
+    client = VeoliaClient(username, password, session)
+    coordinator = VeoliaDataUpdateCoordinator(hass, client=client)
     await coordinator.async_refresh()
 
     if not coordinator.last_update_success:
         raise ConfigEntryNotReady
 
-    for platform in PLATFORMS:
-        hass.async_add_job(hass.config_entries.async_forward_entry_setup(entry, platform))
+    hass.data[DOMAIN][entry.entry_id] = coordinator
 
+    for platform in PLATFORMS:
+        if entry.options.get(platform, True):
+            coordinator.platforms.append(platform)
+            hass.async_add_job(hass.config_entries.async_forward_entry_setup(entry, platform))
+
+    entry.async_on_unload(entry.add_update_listener(async_reload_entry))
     return True
+
+    # @decoratorexceptionDebug
+    # async def _get_consumption():
+    #     """Return the water consumption."""
+    #     api = hass.data[DOMAIN][entry.entry_id]
+    #     consumption = await hass.async_add_executor_job(api.update_all)
+    #     _LOGGER.debug(f"consumption = {consumption}")
+    #     return consumption
+
+    # coordinator = DataUpdateCoordinator(
+    #     hass,
+    #     _LOGGER,
+    #     name="veolia consumption update",
+    #     update_method=_get_consumption,
+    #     update_interval=SCAN_INTERVAL,
+    # )
+
+    # hass.data[DOMAIN][COORDINATOR] = coordinator
+
+    # await coordinator.async_refresh()
+
+    # if not coordinator.last_update_success:
+    #     raise ConfigEntryNotReady
+
+    # for platform in PLATFORMS:
+    #     hass.async_add_job(hass.config_entries.async_forward_entry_setup(entry, platform))
+
+    # return True
+
+
+class VeoliaDataUpdateCoordinator(DataUpdateCoordinator):
+    """Class to manage fetching data from the API."""
+
+    def __init__(self, hass: HomeAssistant, client: VeoliaClient) -> None:
+        """Initialize."""
+        self.api = client
+        self.platforms = []
+
+        super().__init__(hass, _LOGGER, name=DOMAIN, update_interval=SCAN_INTERVAL)
+
+    async def _async_update_data(self):
+        """Update data via library."""
+        try:
+            consumption = await self.hass.async_add_executor_job(self.api.update_all)
+            _LOGGER.debug(f"consumption = {consumption}")
+            return consumption
+
+        except Exception as exception:
+            raise UpdateFailed() from exception
 
 
 @decoratorexceptionDebug
-async def async_unload_entry(hass: HomeAssistantType, entry: ConfigEntry):
-    """Unload a config entry."""
-    hass.data[DOMAIN].pop(API, None)
-    await asyncio.gather(*(hass.config_entries.async_forward_entry_unload(entry, component) for component in PLATFORMS))
-    return True
+async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry):
+    """Handle removal of an entry."""
+    coordinator = hass.data[DOMAIN][entry.entry_id]
+    unloaded = all(
+        await asyncio.gather(
+            *[
+                hass.config_entries.async_forward_entry_unload(entry, platform)
+                for platform in PLATFORMS
+                if platform in coordinator.platforms
+            ]
+        )
+    )
+    if unloaded:
+        hass.data[DOMAIN].pop(entry.entry_id)
+
+    return unloaded
+
+
+@decoratorexceptionDebug
+async def async_reload_entry(hass: HomeAssistant, entry: ConfigEntry) -> None:
+    """Reload config entry."""
+    await async_unload_entry(hass, entry)
+    await async_setup_entry(hass, entry)

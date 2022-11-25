@@ -1,12 +1,13 @@
 """VeoliaEntity class."""
+from homeassistant.components.sensor import SensorDeviceClass, SensorEntity
 from homeassistant.const import VOLUME_LITERS
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .const import DOMAIN, NAME
+from .const import ATTRIBUTION, DAILY, DOMAIN, HISTORY, ICON, NAME
 from .debug import decoratorexceptionDebug
 
 
-class VeoliaEntity(CoordinatorEntity):
+class VeoliaEntity(CoordinatorEntity, SensorEntity):
     """Representation of a Veolia entity."""
 
     @decoratorexceptionDebug
@@ -14,16 +15,42 @@ class VeoliaEntity(CoordinatorEntity):
         """Initialize the entity."""
         super().__init__(coordinator)
         self.config_entry = config_entry
-        self._attr_unique_id = f"{self.config_entry.entry_id}_{self.name}"
-        self._attr_unit_of_measurement = VOLUME_LITERS
-        self._attr_icon = "mdi:water"
+
+    @property
+    def unique_id(self):
+        """Return a unique ID to use for this entity."""
+        return f"{self.config_entry.entry_id}_{self.name}"
+        # return self.config_entry.entry_id
 
     @property
     @decoratorexceptionDebug
     def device_info(self):
         """Return device registry information for this entity."""
         return {
-            "identifiers": {(self.config_entry.entry_id, DOMAIN)},
+            "identifiers": {(DOMAIN, self.config_entry.entry_id)},
             "manufacturer": NAME,
             "name": NAME,
+        }
+
+    @property
+    def device_class(self):
+        """Return the device_class of the sensor."""
+        return SensorDeviceClass.WATER
+
+    @property
+    def unit_of_measurement(self):
+        """Return the unit_of_measurement of the sensor."""
+        return VOLUME_LITERS
+
+    @property
+    def icon(self):
+        """Return the icon of the sensor."""
+        return ICON
+
+    def _base_extra_state_attributes(self):
+        """Return the base extra state attributes."""
+        return {
+            "attribution": ATTRIBUTION,
+            "integration": DOMAIN,
+            "last_report": self.coordinator.data[DAILY][HISTORY][0][0],
         }

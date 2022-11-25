@@ -1,14 +1,23 @@
 """Constants for Veolia."""
-
-from homeassistant.components.sensor import DOMAIN as SENSOR
-
+# Base component constants
 NAME = "Veolia"
 DOMAIN = "veolia"
+ATTRIBUTION = "Data provided by https://www.service.eau.veolia.fr/"
+
+
+# Icons
+ICON = "mdi:water"
+
+# Platforms
+SENSOR = "sensor"
 PLATFORMS = [SENSOR]
+
+# Configuration and options
 CONF_USERNAME = "username"
 CONF_PASSWORD = "password"
-API = "api"
-COORDINATOR = "coordinator"
+
+
+# API = "api"
 DAILY = "daily"
 MONTHLY = "monthly"
 HISTORY = "historyConsumption"

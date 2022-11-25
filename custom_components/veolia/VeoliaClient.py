@@ -1,3 +1,4 @@
+"""API Program for Veolia."""
 import logging
 import operator
 import xml.etree.ElementTree as ET
@@ -9,25 +10,25 @@ import xmltodict
 
 from .const import DAILY, FORMAT_DATE, HISTORY, MONTHLY
 
-_LOGGER = logging.getLogger(__name__)
+_LOGGER: logging.Logger = logging.getLogger(__package__)
 
 
 class VeoliaError(Exception):
+    """Error from API."""
+
     pass
 
 
 class BadCredentialsException(Exception):
+    """Wrong authentication."""
+
     pass
 
 
 class VeoliaClient:
-    """Class to manage the webServices system.
-    Keyword arguments :
-        none
-    Return self
-    """
+    """Class to manage the webServices system."""
 
-    def __init__(self, email, password, session=requests.Session()):
+    def __init__(self, email: str, password: str, session=requests.Session()) -> None:
         """Initialize the client object."""
         self._email = email
         self._pwd = password
@@ -41,8 +42,8 @@ class VeoliaClient:
         self.__enveloppe = self.__create_enveloppe()
 
     def login(self):
-        """
-        Check if login is right
+        """Check if login is right.
+
         raise BadCredentialsException if not
         """
         try:
@@ -110,7 +111,7 @@ class VeoliaClient:
                 result = xmltodict.parse(f"<soap:Envelope{resp.text.split('soap:Envelope')[1]}soap:Envelope>")
                 _LOGGER.debug(f"result={result}")
                 lstindex = result["soap:Envelope"]["soap:Body"][f"ns2:{action}Response"]["return"]
-                self.attributes[period]["attribution"] = "Data provided by https://www.service.eau.veolia.fr/"
+                # self.attributes[period]["attribution"] = "Data provided by https://www.service.eau.veolia.fr/"
                 self.attributes[period][HISTORY] = {}
 
                 # sort date desc and append in list of tuple (date,liters)
@@ -139,9 +140,7 @@ class VeoliaClient:
                 pass
 
     def _get_tokenPassword(self):
-        """
-        Get token password for next actions who needs authentication
-        """
+        """Get token password for next actions who needs authentication."""
         datas = self.__construct_body(
             "getAuthentificationFront",
             {"cptEmail": self._email, "cptPwd": self._pwd},
@@ -170,8 +169,7 @@ class VeoliaClient:
             # _LOGGER.debug(f"__aboId={self.__aboId}")
 
     def __create_enveloppe(self):
-        """
-        Returns enveloppe for requests
+        """Return enveloppe for requests.
 
         Returns:
             xml: enveloppe
@@ -185,15 +183,18 @@ class VeoliaClient:
         # <wsse:Security xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd">
         __security = ET.SubElement(__header, "wsse:Security")
         __security.set(
-            "xmlns:wsse", "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd"
+            "xmlns:wsse",
+            "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd",
         )
         __security.set(
-            "xmlns:wsu", "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd"
+            "xmlns:wsu",
+            "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd",
         )
         # <wsse:UsernameToken xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" wsu:Id="UsernameToken-aiehdbsf52">
         __usernameToken = ET.SubElement(__security, "wsse:UsernameToken")
         __usernameToken.set(
-            "xmlns:wsu", "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd"
+            "xmlns:wsu",
+            "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd",
         )
         __usernameToken.set("wsu:Id", "UsernameToken-aiehdbsf52")
         # <wsse:Username>anonyme</wsse:Username>
@@ -202,7 +203,8 @@ class VeoliaClient:
         # <wsse:Password Type="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-username-token-profile-1.0#PasswordText">PYg6fMplCoo19dZVXkn2</wsse:Password>
         __password = ET.SubElement(__usernameToken, "wsse:Password")
         __password.set(
-            "Type", "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-username-token-profile-1.0#PasswordText"
+            "Type",
+            "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-username-token-profile-1.0#PasswordText",
         )
         __password.text = "PYg6fMplCoo19dZVXkn2"
         # <wsse:Nonce EncodingType="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary">1dWl+HzD/sJsWzAcDHQX6Q==</wsse:Nonce>
@@ -220,8 +222,7 @@ class VeoliaClient:
         return __enveloppe
 
     def __construct_body(self, action: str, elts: dict, anonymous=True):
-        """
-        Appends action into a copy of _enveloppe
+        """Append action into a copy of _enveloppe.
 
         Args:
             action (str): Name of action
@@ -245,15 +246,3 @@ class VeoliaClient:
             username_token.find("wsse:Password").text = self.__tokenPassword
 
         return ET.tostring(datas, encoding="UTF-8")
-
-
-# ============================================================
-#    MAIN
-# ============================================================
-if __name__ == "__main__":
-    """Main of interface
-    Keyword arguments :
-        none
-    Return self
-    """
-    pass
