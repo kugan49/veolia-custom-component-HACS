@@ -1,9 +1,10 @@
 """API Program for Veolia."""
+
+from copy import deepcopy as copy
+from datetime import datetime
 import logging
 import operator
 import xml.etree.ElementTree as ET
-from copy import deepcopy as copy
-from datetime import datetime
 
 import requests
 import xmltodict
@@ -109,9 +110,8 @@ class VeoliaClient:
         else:
             try:
                 result = xmltodict.parse(f"<soap:Envelope{resp.text.split('soap:Envelope')[1]}soap:Envelope>")
-                _LOGGER.debug(f"result={result}")
+                _LOGGER.debug(f"result_fetch_data={result}")
                 lstindex = result["soap:Envelope"]["soap:Body"][f"ns2:{action}Response"]["return"]
-                # self.attributes[period]["attribution"] = "Data provided by https://www.service.eau.veolia.fr/"
                 self.attributes[period][HISTORY] = {}
 
                 # sort date desc and append in list of tuple (date,liters)
@@ -158,7 +158,7 @@ class VeoliaClient:
             raise Exception(f"POST /__get_tokenPassword/ {resp.status_code}")
         else:
             result = xmltodict.parse(f"<soap:Envelope{resp.text.split('soap:Envelope')[1]}soap:Envelope>")
-            # _LOGGER.debug(f"result={result}")
+            _LOGGER.debug(f"result_getauth={result}")
             self.__tokenPassword = result["soap:Envelope"]["soap:Body"]["ns2:getAuthentificationFrontResponse"][
                 "return"
             ]["espaceClient"]["cptPwd"]
