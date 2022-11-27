@@ -4,7 +4,7 @@
 
 - change version in `custom_components/veolia/manifest.json`
 - Add infos about new version in `CHANGELOG.md`
-- To auto release commit whith name ( :exclamation: case sensitive) : `Release: vx.x.x ....`
+- To auto release commit whith name ( :exclamation: case sensitive) : `Release: vx.x.x`
 
 ## What?
 

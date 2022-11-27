@@ -162,9 +162,13 @@ class VeoliaClient:
             self.__tokenPassword = result["soap:Envelope"]["soap:Body"]["ns2:getAuthentificationFrontResponse"][
                 "return"
             ]["espaceClient"]["cptPwd"]
-            self.__aboId = result["soap:Envelope"]["soap:Body"]["ns2:getAuthentificationFrontResponse"]["return"][
+            contrat = result["soap:Envelope"]["soap:Body"]["ns2:getAuthentificationFrontResponse"]["return"][
                 "listContrats"
-            ]["aboId"]
+            ]
+            if isinstance(contrat, list):
+                self.__aboId = contrat[0]["aboId"]
+            else:
+                self.__aboId = contrat["aboId"]
             # _LOGGER.debug(f"__tokenPassword={self.__tokenPassword}")
             # _LOGGER.debug(f"__aboId={self.__aboId}")
 
