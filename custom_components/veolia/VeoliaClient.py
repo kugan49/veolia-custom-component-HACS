@@ -105,6 +105,8 @@ class VeoliaClient:
             headers=self.headers,
             data=datas,
         )
+        _LOGGER.debug(str(resp))
+        _LOGGER.debug(str(resp.text))
         if resp.status_code != 200:
             raise Exception(f"POST /_fetch_data/ {resp.status_code}")
         else:
