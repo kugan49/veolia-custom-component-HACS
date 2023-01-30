@@ -42,6 +42,33 @@ Recommended as you get notifications of updates
 
 Just fill in your username and password when adding the integration
 
+
+## Add an apexcharts-card to show history attribute
+
+You can use [apexcharts-card](https://github.com/RomRider/apexcharts-card)
+
+```yaml
+
+type: custom:apexcharts-card
+graph_span: 1month
+header:
+  show: true
+  title: ApexCharts-Card
+  show_states: true
+  colorize_states: true
+series:
+  - entity: sensor.veolia_daily_consumption
+    type: column
+    data_generator: |
+      return entity.attributes.historyConsumption.map((val, index) => {
+        return [new Date(val[0]).getTime(), val[1]];
+      });
+
+```
+
+![apexchartsimg]
+
+
 ## Special Thanks
 
 A big thanks to [@Pulpyyyy](https://github.com/Pulpyyyy), who helped me a lot in the research
@@ -57,6 +84,7 @@ A big thanks to [@Pulpyyyy](https://github.com/Pulpyyyy), who helped me a lot in
 [appareilimg]: images/appareil.png
 [daily_consumptionimg]: images/daily_consumption.png
 [monthly_consumptionimg]: images/monthly_consumption.png
+[apexchartsimg]: images/apexcharts-card_example.png
 [license-shield]: https://img.shields.io/github/license/kugan49/veolia-custom-component-HACS.svg?style=for-the-badge
 [maintenance-shield]: https://img.shields.io/badge/maintainer-%40kugan49-blue.svg?style=for-the-badge
 [releases-shield]: https://img.shields.io/github/release/kugan49/veolia-custom-component-HACS.svg?style=for-the-badge

@@ -114,27 +114,27 @@ class VeoliaClient:
                 result = xmltodict.parse(f"<soap:Envelope{resp.text.split('soap:Envelope')[1]}soap:Envelope>")
                 _LOGGER.debug(f"result_fetch_data={result}")
                 lstindex = result["soap:Envelope"]["soap:Body"][f"ns2:{action}Response"]["return"]
-                self.attributes[period][HISTORY] = {}
+                self.attributes[period][HISTORY] = []
 
                 # sort date desc and append in list of tuple (date,liters)
                 if month is True:
                     lstindex.sort(key=operator.itemgetter("annee", "mois"), reverse=True)
-                    idx = 0
                     for val in lstindex:
-                        self.attributes[period][HISTORY][idx] = (
-                            f"{val['annee']}-{val['mois']}",
-                            int(val["consommation"]),
+                        self.attributes[period][HISTORY].append(
+                            (
+                                f"{val['annee']}-{val['mois']}",
+                                int(val["consommation"]),
+                            )
                         )
-                        idx += 1
                 else:
                     lstindex.sort(key=operator.itemgetter("dateReleve"), reverse=True)
-                    idx = 0
                     for val in lstindex:
-                        self.attributes[period][HISTORY][idx] = (
-                            datetime.strptime(val["dateReleve"], FORMAT_DATE).date(),
-                            int(val["consommation"]),
+                        self.attributes[period][HISTORY].append(
+                            (
+                                datetime.strptime(val["dateReleve"], FORMAT_DATE).date(),
+                                int(val["consommation"]),
+                            )
                         )
-                        idx += 1
                     self.attributes["last_index"] = int(lstindex[0]["index"]) + int(lstindex[0]["consommation"])
                 self.success = True
             except ValueError:

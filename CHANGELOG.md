@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## v1.1.0
+
+### Breaking change
+
+- le format d'historique a été modifié pour être plus facilement intégrable dans apexcharts-card
+
+### Changed
+
+- Ajout d'un exemple d'utilisation d'apexcharts-card pour l'historique
+ 
 ## v1.0.3
 
 ### Changed
