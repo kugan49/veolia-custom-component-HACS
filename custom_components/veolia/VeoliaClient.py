@@ -118,24 +118,42 @@ class VeoliaClient:
 
                 # sort date desc and append in list of tuple (date,liters)
                 if month is True:
-                    lstindex.sort(key=operator.itemgetter("annee", "mois"), reverse=True)
-                    for val in lstindex:
+                    if isinstance(lstindex, list):
+                        lstindex.sort(key=operator.itemgetter("annee", "mois"), reverse=True)
+                        for val in lstindex:
+                            self.attributes[period][HISTORY].append(
+                                (
+                                    f"{val['annee']}-{val['mois']}",
+                                    int(val["consommation"]),
+                                )
+                            )
+                    elif isinstance(lstindex, dict):
                         self.attributes[period][HISTORY].append(
                             (
-                                f"{val['annee']}-{val['mois']}",
-                                int(val["consommation"]),
+                                f"{lstindex['annee']}-{lstindex['mois']}",
+                                int(lstindex["consommation"]),
                             )
                         )
+
                 else:
-                    lstindex.sort(key=operator.itemgetter("dateReleve"), reverse=True)
-                    for val in lstindex:
+                    if isinstance(lstindex, list):
+                        lstindex.sort(key=operator.itemgetter("dateReleve"), reverse=True)
+                        for val in lstindex:
+                            self.attributes[period][HISTORY].append(
+                                (
+                                    datetime.strptime(val["dateReleve"], FORMAT_DATE).date(),
+                                    int(val["consommation"]),
+                                )
+                            )
+                        self.attributes["last_index"] = int(lstindex[0]["index"]) + int(lstindex[0]["consommation"])
+                    elif isinstance(lstindex, dict):
                         self.attributes[period][HISTORY].append(
                             (
-                                datetime.strptime(val["dateReleve"], FORMAT_DATE).date(),
-                                int(val["consommation"]),
+                                datetime.strptime(lstindex["dateReleve"], FORMAT_DATE).date(),
+                                int(lstindex["consommation"]),
                             )
                         )
-                    self.attributes["last_index"] = int(lstindex[0]["index"]) + int(lstindex[0]["consommation"])
+                        self.attributes["last_index"] = int(lstindex["index"]) + int(lstindex["consommation"])
                 self.success = True
             except ValueError:
                 raise VeoliaError("Issue with accessing data")

@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## v1.1.1
+
+### Changed
+
+- Ajout d'un controle si l'historique des consos ne ramène qu'un résultat
+
 ## v1.1.0
 
 ### Breaking change
