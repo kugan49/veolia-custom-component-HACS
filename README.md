@@ -29,6 +29,9 @@ Platform | Description
 
 Recommended as you get notifications of updates
 
+[![Open your Home Assistant instance and open this repository inside the Home Assistant Community Store.][my_hacs_badge]][my_ha_link]
+
+If the link above does not work follow these steps:
 * Add this repository https://github.com/kugan49/veolia-custom-component-HACS to HACS as a "custom repository" with category "integration". This option can be found in the ⋮ menu
 * Install the integration from within HACS
 * Restart Home Assistant
@@ -80,6 +83,8 @@ A big thanks to [@Pulpyyyy](https://github.com/Pulpyyyy), who helped me a lot in
 [commits]: https://github.com/kugan49/veolia-custom-component-HACS/commits/master
 [hacs]: https://hacs.xyz
 [hacsbadge]: https://img.shields.io/badge/HACS-Custom-orange.svg?style=for-the-badge
+[my_hacs_badge]: https://my.home-assistant.io/badges/hacs_repository.svg
+[my_ha_link]: https://my.home-assistant.io/redirect/hacs_repository/?owner=kugan49&repository=veolia-custom-component-HACS&category=integration
 [logoimg]: images/logo.png
 [appareilimg]: images/appareil.png
 [daily_consumptionimg]: images/daily_consumption.png
