@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## v1.1.2
+
+### Changed
+
+- Améliorer le retour si erreur 500 : possibilité de récupérer le message du serveur
+
 ## v1.1.1
 
 ### Changed

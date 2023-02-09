@@ -1,7 +1,7 @@
 {
   "domain": "veolia",
   "name": "Veolia",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "integration_type": "device",
   "documentation": "https://github.com/kugan49/veolia-custom-component-HACS",
   "issue_tracker": "https://github.com/kugan49/veolia-custom-component-HACS/issues",

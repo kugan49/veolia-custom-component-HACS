@@ -108,7 +108,14 @@ class VeoliaClient:
         _LOGGER.debug(str(resp))
         _LOGGER.debug(str(resp.text))
         if resp.status_code != 200:
-            raise Exception(f"POST /_fetch_data/ {resp.status_code}")
+            msg = f"Error {resp.status_code} fetching data :"
+            try:
+                msg += xmltodict.parse(f"<soap:Envelope{resp.text.split('soap:Envelope')[1]}soap:Envelope>")[
+                    "soap:Envelope"
+                ]["soap:Body"]["soap:Fault"]["faultstring"]
+            except Exception:
+                msg += str(resp.text)
+            _LOGGER.error(msg)
         else:
             try:
                 result = xmltodict.parse(f"<soap:Envelope{resp.text.split('soap:Envelope')[1]}soap:Envelope>")
@@ -175,7 +182,7 @@ class VeoliaClient:
         _LOGGER.debug(f"resp status={resp.status_code}")
         if resp.status_code != 200:
             _LOGGER.error("problem with authentication")
-            raise Exception(f"POST /__get_tokenPassword/ {resp.status_code}")
+            raise VeoliaError(f"POST /__get_tokenPassword/ {resp.status_code}")
         else:
             result = xmltodict.parse(f"<soap:Envelope{resp.text.split('soap:Envelope')[1]}soap:Envelope>")
             _LOGGER.debug(f"result_getauth={result}")
