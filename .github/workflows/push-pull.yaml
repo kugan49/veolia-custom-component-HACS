@@ -36,7 +36,7 @@ jobs:
       - run: python3 -m pip install black
       - run: black .
   release:
-    needs: [validate, style]
+    needs: [hassfest, hacs, style]
     runs-on: "ubuntu-latest"
     steps:
       - uses: actions/checkout@v2
