@@ -11,7 +11,7 @@ jobs:
     runs-on: "ubuntu-latest"
     steps:
       - name: "Checkout the repository"
-        uses: "actions/checkout@v3.3.0"
+        uses: "actions/checkout@v3"
       - name: "Run hassfest validation"
         uses: "home-assistant/actions/hassfest@master"
   hacs: # https://github.com/hacs/action
@@ -19,7 +19,7 @@ jobs:
     runs-on: "ubuntu-latest"
     steps:
       - name: "Checkout the repository"
-        uses: "actions/checkout@v3.3.0"
+        uses: "actions/checkout@v3"
       - name: "Run HACS validation"
         uses: "hacs/action@main"
         with:
@@ -29,8 +29,8 @@ jobs:
     runs-on: "ubuntu-latest"
     name: Check style formatting
     steps:
-      - uses: "actions/checkout@v2"
-      - uses: "actions/setup-python@v1"
+      - uses: "actions/checkout@v3"
+      - uses: "actions/setup-python@v4"
         with:
           python-version: "3.x"
       - run: python3 -m pip install black
@@ -39,7 +39,7 @@ jobs:
     needs: [hassfest, hacs, style]
     runs-on: "ubuntu-latest"
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: CupOfTea696/gh-action-auto-release@v1.0.2
         with:
           title: "Release: $version"
