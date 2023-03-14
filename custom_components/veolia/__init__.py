@@ -12,7 +12,7 @@ from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
 from .VeoliaClient import VeoliaClient
-from .const import CONF_PASSWORD, CONF_USERNAME, DOMAIN, PLATFORMS
+from .const import CONF_ABO_ID, CONF_PASSWORD, CONF_USERNAME, DOMAIN, PLATFORMS
 from .debug import decoratorexceptionDebug
 
 SCAN_INTERVAL = timedelta(hours=10)
@@ -34,9 +34,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
 
     username = entry.data.get(CONF_USERNAME)
     password = entry.data.get(CONF_PASSWORD)
-
+    abo_id = entry.data.get(CONF_ABO_ID)
+    # _LOGGER.debug(f"abo_id={abo_id}")
     session = async_get_clientsession(hass)
-    client = VeoliaClient(username, password, session)
+    client = VeoliaClient(username, password, session, abo_id)
     coordinator = VeoliaDataUpdateCoordinator(hass, client=client)
     await coordinator.async_refresh()
 
@@ -52,34 +53,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
 
     entry.async_on_unload(entry.add_update_listener(async_reload_entry))
     return True
-
-    # @decoratorexceptionDebug
-    # async def _get_consumption():
-    #     """Return the water consumption."""
-    #     api = hass.data[DOMAIN][entry.entry_id]
-    #     consumption = await hass.async_add_executor_job(api.update_all)
-    #     _LOGGER.debug(f"consumption = {consumption}")
-    #     return consumption
-
-    # coordinator = DataUpdateCoordinator(
-    #     hass,
-    #     _LOGGER,
-    #     name="veolia consumption update",
-    #     update_method=_get_consumption,
-    #     update_interval=SCAN_INTERVAL,
-    # )
-
-    # hass.data[DOMAIN][COORDINATOR] = coordinator
-
-    # await coordinator.async_refresh()
-
-    # if not coordinator.last_update_success:
-    #     raise ConfigEntryNotReady
-
-    # for platform in PLATFORMS:
-    #     hass.async_add_job(hass.config_entries.async_forward_entry_setup(entry, platform))
-
-    # return True
 
 
 class VeoliaDataUpdateCoordinator(DataUpdateCoordinator):

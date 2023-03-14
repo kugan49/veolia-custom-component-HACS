@@ -1,12 +1,14 @@
 """Adds config flow for Veolia."""
-import voluptuous as vol
-from homeassistant import config_entries
-from homeassistant.core import callback
-from homeassistant.helpers.aiohttp_client import async_create_clientsession
+import logging
 
-from .const import CONF_PASSWORD, CONF_USERNAME, DOMAIN
-from .debug import decoratorexceptionDebug
+from homeassistant import config_entries
+import voluptuous as vol
+
 from .VeoliaClient import BadCredentialsException, VeoliaClient
+from .const import CONF_ABO_ID, CONF_PASSWORD, CONF_USERNAME, DOMAIN
+from .debug import decoratorexceptionDebug
+
+_LOGGER: logging.Logger = logging.getLogger(__package__)
 
 
 class VeoliaFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
@@ -32,7 +34,11 @@ class VeoliaFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         if user_input is not None:
             valid = await self._test_credentials(user_input[CONF_USERNAME], user_input[CONF_PASSWORD])
             if valid:
-                return self.async_create_entry(title=user_input[CONF_USERNAME], data=user_input)
+                if user_input[CONF_ABO_ID] != "":
+                    title = f"{user_input[CONF_USERNAME]} - {user_input[CONF_ABO_ID]}"
+                else:
+                    title = f"{user_input[CONF_USERNAME]}"
+                return self.async_create_entry(title=title, data=user_input)
             else:
                 self._errors["base"] = "auth"
 
@@ -42,16 +48,12 @@ class VeoliaFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         # Provide defaults for form
         user_input[CONF_USERNAME] = ""
         user_input[CONF_PASSWORD] = ""
+        user_input[CONF_ABO_ID] = ""
 
         return await self._show_config_form(user_input)
 
-    # @staticmethod
-    # @callback
-    # def async_get_options_flow(config_entry):
-    #     return VeoliaOptionsFlowHandler(config_entry)
-
     @decoratorexceptionDebug
-    async def _show_config_form(self, user_input):  # pylint: disable=unused-argument
+    async def _show_config_form(self, user_input):
         """Show the configuration form to edit location data."""
         return self.async_show_form(
             step_id="user",
@@ -59,6 +61,7 @@ class VeoliaFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                 {
                     vol.Required(CONF_USERNAME, default=user_input[CONF_USERNAME]): str,
                     vol.Required(CONF_PASSWORD, default=user_input[CONF_PASSWORD]): str,
+                    vol.Optional(CONF_ABO_ID, default=user_input[CONF_ABO_ID]): str,
                 }
             ),
             errors=self._errors,
@@ -74,38 +77,3 @@ class VeoliaFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         except BadCredentialsException:
             pass
         return False
-
-
-# class VeoliaOptionsFlowHandler(config_entries.OptionsFlow):
-#     """Veolia config flow options handler."""
-
-#     def __init__(self, config_entry):
-#         """Initialize HACS options flow."""
-#         self.config_entry = config_entry
-#         self.options = dict(config_entry.options)
-
-#     async def async_step_init(self, user_input=None):  # pylint: disable=unused-argument
-#         """Manage the options."""
-#         return await self.async_step_user()
-
-#     async def async_step_user(self, user_input=None):
-#         """Handle a flow initialized by the user."""
-#         if user_input is not None:
-#             self.options.update(user_input)
-#             return await self._update_options()
-
-#         return self.async_show_form(
-#             step_id="user",
-#             data_schema=vol.Schema(
-#                 {
-#                     vol.Required(x, default=self.options.get(x, True)): bool
-#                     for x in sorted(PLATFORMS)
-#                 }
-#             ),
-#         )
-
-#     async def _update_options(self):
-#         """Update config entry options."""
-#         return self.async_create_entry(
-#             title=self.config_entry.data.get(CONF_USERNAME), data=self.options
-#         )

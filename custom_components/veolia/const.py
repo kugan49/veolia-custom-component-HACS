@@ -15,7 +15,7 @@ PLATFORMS = [SENSOR]
 # Configuration and options
 CONF_USERNAME = "username"
 CONF_PASSWORD = "password"
-
+CONF_ABO_ID = "abo_id"
 
 # API = "api"
 DAILY = "daily"

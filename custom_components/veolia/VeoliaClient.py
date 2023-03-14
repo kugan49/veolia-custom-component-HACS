@@ -29,10 +29,11 @@ class BadCredentialsException(Exception):
 class VeoliaClient:
     """Class to manage the webServices system."""
 
-    def __init__(self, email: str, password: str, session=requests.Session()) -> None:
+    def __init__(self, email: str, password: str, session=requests.Session(), abo_id="") -> None:
         """Initialize the client object."""
         self._email = email
         self._pwd = password
+        self.__aboId = abo_id
         self.address = "https://www.service.eau.veolia.fr/icl-ws/iclWebService"
         self.headers = {"Content-Type": "application/xml; charset=UTF-8"}
         self.__tokenPassword = None
@@ -49,11 +50,10 @@ class VeoliaClient:
         """
         try:
             _LOGGER.info("Check credentials")
-            self._get_tokenPassword()
+            self._get_tokenPassword(check_only=True)
         except Exception as e:
             _LOGGER.error(f"wrong authentication : {e}")
-            raise BadCredentialsException("wrong authentication")
-            pass
+            raise BadCredentialsException(f"wrong authentication : {e}")
 
     def update_all(self):
         """
@@ -108,6 +108,7 @@ class VeoliaClient:
         _LOGGER.debug(str(resp))
         _LOGGER.debug(str(resp.text))
         if resp.status_code != 200:
+            # Améliorer le retour si erreur 500 : possibilité de récupérer le message du serveur
             msg = f"Error {resp.status_code} fetching data :"
             try:
                 msg += xmltodict.parse(f"<soap:Envelope{resp.text.split('soap:Envelope')[1]}soap:Envelope>")[
@@ -116,6 +117,7 @@ class VeoliaClient:
             except Exception:
                 msg += str(resp.text)
             _LOGGER.error(msg)
+            raise Exception(f"{msg}")
         else:
             try:
                 result = xmltodict.parse(f"<soap:Envelope{resp.text.split('soap:Envelope')[1]}soap:Envelope>")
@@ -166,7 +168,7 @@ class VeoliaClient:
                 raise VeoliaError("Issue with accessing data")
                 pass
 
-    def _get_tokenPassword(self):
+    def _get_tokenPassword(self, check_only=False):
         """Get token password for next actions who needs authentication."""
         datas = self.__construct_body(
             "getAuthentificationFront",
@@ -182,22 +184,27 @@ class VeoliaClient:
         _LOGGER.debug(f"resp status={resp.status_code}")
         if resp.status_code != 200:
             _LOGGER.error("problem with authentication")
-            raise VeoliaError(f"POST /__get_tokenPassword/ {resp.status_code}")
+            raise Exception(f"POST /__get_tokenPassword/ {resp.status_code}")
         else:
             result = xmltodict.parse(f"<soap:Envelope{resp.text.split('soap:Envelope')[1]}soap:Envelope>")
             _LOGGER.debug(f"result_getauth={result}")
+            if check_only:
+                return None
             self.__tokenPassword = result["soap:Envelope"]["soap:Body"]["ns2:getAuthentificationFrontResponse"][
                 "return"
             ]["espaceClient"]["cptPwd"]
             contrat = result["soap:Envelope"]["soap:Body"]["ns2:getAuthentificationFrontResponse"]["return"][
                 "listContrats"
             ]
-            if isinstance(contrat, list):
-                self.__aboId = contrat[0]["aboId"]
-            else:
-                self.__aboId = contrat["aboId"]
+
+            if self.__aboId == "":
+                _LOGGER.debug("No Abo_ID provided, finding first")
+                if isinstance(contrat, list):
+                    self.__aboId = contrat[0]["aboId"]
+                else:
+                    self.__aboId = contrat["aboId"]
+            _LOGGER.debug(f"__aboId={self.__aboId}")
             # _LOGGER.debug(f"__tokenPassword={self.__tokenPassword}")
-            # _LOGGER.debug(f"__aboId={self.__aboId}")
 
     def __create_enveloppe(self):
         """Return enveloppe for requests.

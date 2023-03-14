@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file.
 
+## v1.2.0
+
+### Breaking change
+  
+---
+  **La configuration perd le mot de pase en passant à cette version.**
+
+  **Il faut supprimer l'intégration PUIS la recréer, mais les historiques de données seront repris.**
+
+---
+
+### Changed
+
+- Passage de la doc en Français, l'usage étant réservé à la France.
+- Ajout de la gestion multi compteur. 
+    Dans la configuration, vous pourrez préciser la référence d'abonnement (voir Readme)
+    Vous devez pour cela supprimer l'intégration actuelle pour la recréer.
+  
+
 ## v1.1.2
 
 ### Changed

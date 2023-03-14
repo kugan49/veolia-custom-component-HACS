@@ -1,17 +1,18 @@
 {
-    "title": "Veolia",
-    "config": {
-        "step": {
-            "user": {
-                "description": "Utiliser vos identifiants pour https://www.service.eau.veolia.fr/",
-                "data": {
-                    "username": "Identifiant",
-                    "password": "Mot de Passe"
-                }
-            }
-        },
-        "error": {
-            "auth": "Identifiant ou mot de passe erroné."
+  "title": "Veolia by Kugan49",
+  "config": {
+    "step": {
+      "user": {
+        "description": "Utiliser vos identifiants pour https://www.service.eau.veolia.fr/",
+        "data": {
+          "username": "Identifiant",
+          "password": "Mot de Passe",
+          "abo_id": "Votre Référence Abonnement"
         }
+      }
+    },
+    "error": {
+      "auth": "Identifiant ou mot de passe erroné."
     }
+  }
 }

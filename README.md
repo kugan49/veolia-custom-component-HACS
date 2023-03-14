@@ -45,6 +45,13 @@ Si le lien ci-dessus ne fonctionne pas, suivez ces étapes :
 
 Remplissez simplement votre nom d'utilisateur et votre mot de passe lors de l'ajout de l'intégration
 
+Si vous avez plusieurs compteurs, vous pouvez renseigner la référence abonnement pour récupérer les bon résultats.
+Si vous ne la renseignez pas, le premier abonnement sera automatiquement selectionné.
+
+La référence abonnement se trouve dans l'onglet `Gérer votre Espace Personnel` dans la section `Mes Contrats`, sous la colonne `Références`
+
+Vous pouvez ajouter autant d'intégration que de compteur à suivre.
+
 
 ## Ajoutez une carte apexcharts pour afficher l'attribut d'historique
 

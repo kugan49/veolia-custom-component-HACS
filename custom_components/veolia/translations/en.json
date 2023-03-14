@@ -1,17 +1,18 @@
 {
-    "title": "Veolia",
-    "config": {
-        "step": {
-            "user": {
-                "description": "Please use your https://www.service.eau.veolia.fr/ credentials.",
-                "data": {
-                    "username": "Username",
-                    "password": "Password"
-                }
-            }
-        },
-        "error": {
-            "auth": "Username/Password is wrong."
+  "title": "Veolia by Kugan49",
+  "config": {
+    "step": {
+      "user": {
+        "description": "Please use your https://www.service.eau.veolia.fr/ credentials.",
+        "data": {
+          "username": "Username",
+          "password": "Password",
+          "abo_id": "Your Subscription Reference"
         }
+      }
+    },
+    "error": {
+      "auth": "Username/Password is wrong."
     }
+  }
 }
