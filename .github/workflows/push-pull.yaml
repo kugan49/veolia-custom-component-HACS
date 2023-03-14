@@ -4,57 +4,42 @@ on:
   push:
   pull_request:
 
+
 jobs:
-  validate:
+  hassfest: # https://developers.home-assistant.io/blog/2020/04/16/hassfest
+    name: "Hassfest Validation"
     runs-on: "ubuntu-latest"
     steps:
-      - uses: "actions/checkout@v2"
-      - name: Hassfest
-        uses: home-assistant/actions/hassfest@master
-      - name: HACS validation
+      - name: "Checkout the repository"
+        uses: "actions/checkout@v3"
+      - name: "Run hassfest validation"
+        uses: "home-assistant/actions/hassfest@master"
+  hacs: # https://github.com/hacs/action
+    name: "HACS Validation"
+    runs-on: "ubuntu-latest"
+    steps:
+      - name: "Checkout the repository"
+        uses: "actions/checkout@v3"
+      - name: "Run HACS validation"
         uses: "hacs/action@main"
         with:
           category: "integration"
-          comment: false
-          ignore: brands
+          ignore: "brands"      
   style:
     runs-on: "ubuntu-latest"
     name: Check style formatting
     steps:
-      - uses: "actions/checkout@v2"
-      - uses: "actions/setup-python@v1"
+      - uses: "actions/checkout@v3"
+      - uses: "actions/setup-python@v4"
         with:
           python-version: "3.x"
       - run: python3 -m pip install black
       - run: black .
-  # tests:
-  #   runs-on: "ubuntu-latest"
-  #   name: Run tests
-  #   steps:
-  #     - name: Check out code from GitHub
-  #       uses: "actions/checkout@v2"
-  #     - name: Setup Python
-  #       uses: "actions/setup-python@v1"
-  #       with:
-  #         python-version: "3.9"
-  #     - name: Install requirements
-  #       run: python3 -m pip install -r requirements_test.txt
-  #     - name: Run tests
-  #       run: |
-  #         pytest \
-  #           -qq \
-  #           --timeout=9 \
-  #           --durations=10 \
-  #           -n auto \
-  #           --cov custom_components.veolia \
-  #           -o console_output_style=count \
-  #           -p no:sugar \
-  #           tests
   release:
-    needs: [validate, style]
+    needs: [hassfest, hacs, style]
     runs-on: "ubuntu-latest"
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: CupOfTea696/gh-action-auto-release@v1.0.2
         with:
           title: "Release: $version"
