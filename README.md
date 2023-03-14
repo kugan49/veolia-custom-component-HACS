@@ -10,11 +10,11 @@
 
 ![logo][logoimg]
 
-**This component will set up the following platforms.**
+**Ce composant configurera les plates-formes suivantes.**
 
 Platform | Description
 -- | --
-`sensor` | Show daily and monthly consumption from Veolia API.
+`sensor` | Affichez la consommation quotidienne et mensuelle ainsi que la dernière valeur d'index de l'API Veolia
 
 ![appareil][appareilimg]
 
@@ -27,28 +27,28 @@ Platform | Description
 
 ### HACS
 
-Recommended as you get notifications of updates
+Recommandé car vous recevrez des notifications de mises à jour
 
-[![Open your Home Assistant instance and open this repository inside the Home Assistant Community Store.][my_hacs_badge]][my_ha_link]
+[![Ouvrez votre instance Home Assistant et ouvrez ce référentiel dans la boutique communautaire Home Assistant.][my_hacs_badge]][my_ha_link]
 
-If the link above does not work follow these steps:
-* Add this repository https://github.com/kugan49/veolia-custom-component-HACS to HACS as a "custom repository" with category "integration". This option can be found in the ⋮ menu
-* Install the integration from within HACS
-* Restart Home Assistant
+Si le lien ci-dessus ne fonctionne pas, suivez ces étapes :
+*  Ajoutez ce référentiel https://github.com/kugan49/veolia-custom-component-HACS à HACS en tant que « Dépôts personnalisés » avec la catégorie « Intégration ».  Cette option se trouve dans le menu ⋮
+* Installer l'intégration depuis HACS
+* Redémarrez Home Assistant
 
-### Manual
+### Manuellement
 
-* Extract the Zip file in the `custom_components` directory
-* Restart Home Assistant
+* Extrayez le fichier Zip dans le répertoire `custom_components`
+* Redémarrez Home Assistant
 
-## Configuration is done in the UI
+## La configuration se fait dans l'interface utilisateur
 
-Just fill in your username and password when adding the integration
+Remplissez simplement votre nom d'utilisateur et votre mot de passe lors de l'ajout de l'intégration
 
 
-## Add an apexcharts-card to show history attribute
+## Ajoutez une carte apexcharts pour afficher l'attribut d'historique
 
-You can use [apexcharts-card](https://github.com/RomRider/apexcharts-card)
+Vous pouvez utiliser [apexcharts-card](https://github.com/RomRider/apexcharts-card)
 
 ```yaml
 
@@ -72,9 +72,9 @@ series:
 ![apexchartsimg]
 
 
-## Special Thanks
+## Remerciement spécial
 
-A big thanks to [@Pulpyyyy](https://github.com/Pulpyyyy), who helped me a lot in the research
+Un grand merci à [@Pulpyyyy](https://github.com/Pulpyyyy), qui m'a beaucoup aidé dans la recherche du fonctionnement de l'API
 
 <!---->
 ***
