@@ -14,7 +14,8 @@
 
 Platform | Description
 -- | --
-`sensor` | Affichez la consommation quotidienne et mensuelle ainsi que la dernière valeur d'index de l'API Veolia
+`sensor` | Affichez la consommation quotidienne et mensuelle ainsi que la dernière valeur d'index de l'API Veolia. Ce sensor est de type enregie, il apparaitra donc dans le tableau de bord Energie
+
 
 ![appareil][appareilimg]
 

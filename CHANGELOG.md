@@ -2,11 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
-## v1.2.1
+## v1.3.0
 
 ### Changed
 
 - Mise à jour des dépendances
+- Ajout info tableau de bord energie dans Readme
   
 
 ## v1.2.0
