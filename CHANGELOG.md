@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## v1.2.1
+
+### Changed
+
+- Mise à jour des dépendances
+  
+
 ## v1.2.0
 
 ### Breaking change

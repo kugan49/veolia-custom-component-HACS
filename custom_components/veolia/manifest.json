@@ -9,5 +9,5 @@
   "iot_class": "cloud_polling",
   "issue_tracker": "https://github.com/kugan49/veolia-custom-component-HACS/issues",
   "requirements": ["xmltodict==0.13.0"],
-  "version": "1.2.0"
+  "version": "1.2.1"
 }
