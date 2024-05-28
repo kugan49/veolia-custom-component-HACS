@@ -150,7 +150,7 @@ class VeoliaClient:
                         for val in lstindex:
                             self.attributes[period][HISTORY].append(
                                 (
-                                    datetime.strptime(val["dateReleve"], FORMAT_DATE).date(),
+                                    datetime.strptime(val["dateReleve"], "%Y-%m-%dT%H:%M:%S%z").date(),
                                     int(val["consommation"]),
                                 )
                             )
