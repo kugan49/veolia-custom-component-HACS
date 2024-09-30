@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## v1.3.1
+
+### Changed
+
+- Mise à jour des dépendances
+- Mise à jour fonctions dépréciées par home assistant
+  
 ## v1.3.0
 
 ### Changed

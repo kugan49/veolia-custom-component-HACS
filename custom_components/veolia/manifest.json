@@ -1,13 +1,17 @@
 {
   "domain": "veolia",
   "name": "Veolia",
-  "codeowners": ["@kugan49"],
+  "codeowners": [
+    "@kugan49"
+  ],
   "config_flow": true,
   "dependencies": [],
   "documentation": "https://github.com/kugan49/veolia-custom-component-HACS",
   "integration_type": "device",
   "iot_class": "cloud_polling",
   "issue_tracker": "https://github.com/kugan49/veolia-custom-component-HACS/issues",
-  "requirements": ["xmltodict==0.13.0"],
-  "version": "1.3.0"
+  "requirements": [
+    "xmltodict==0.13.0"
+  ],
+  "version": "1.3.1"
 }

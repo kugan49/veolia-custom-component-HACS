@@ -1,6 +1,7 @@
 """VeoliaEntity class."""
+
 from homeassistant.components.sensor import SensorDeviceClass, SensorEntity
-from homeassistant.const import VOLUME_LITERS
+from homeassistant.const import UnitOfVolume
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import ATTRIBUTION, DAILY, DOMAIN, HISTORY, ICON, NAME
@@ -40,7 +41,7 @@ class VeoliaEntity(CoordinatorEntity, SensorEntity):
     @property
     def unit_of_measurement(self):
         """Return the unit_of_measurement of the sensor."""
-        return VOLUME_LITERS
+        return UnitOfVolume.LITERS
 
     @property
     def icon(self):
